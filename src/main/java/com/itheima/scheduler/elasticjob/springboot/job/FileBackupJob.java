@@ -36,6 +36,7 @@ public class FileBackupJob implements SimpleJob {
     @Override
     public void execute(ShardingContext shardingContext) {
         System.out.println("作业分片："+shardingContext.getShardingItem());
+
         //分片参数，（0=text,1=image,2=radio,3=vedio，参数就是text、image...）
         String jobParameter = shardingContext.getJobParameter();
 

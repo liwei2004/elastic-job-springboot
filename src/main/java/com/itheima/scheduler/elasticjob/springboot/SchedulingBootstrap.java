@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  **/
 @SpringBootApplication
 public class SchedulingBootstrap {
+
     public static void main(String[] args) {
         SpringApplication.run(SchedulingBootstrap.class,args);
     }

@@ -41,7 +41,7 @@ public class GenerateTestData {
      * 创建模拟数据
      */
     public void generateTestFiles(){
-        List<FileCustom> files =new ArrayList<>();
+        List<FileCustom> files = new ArrayList<>();
         for(int i=1;i<11;i++){
             files.add(new FileCustom(String.valueOf(i),"文件"+ i,"text","content"+ i));
             files.add(new FileCustom(String.valueOf((i+10)),"文件"+(i+10),"image","content"+ (i+10)));

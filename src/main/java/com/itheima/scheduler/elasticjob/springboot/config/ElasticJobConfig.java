@@ -7,6 +7,7 @@ import com.dangdang.ddframe.job.config.dataflow.DataflowJobConfiguration;
 import com.dangdang.ddframe.job.config.simple.SimpleJobConfiguration;
 import com.dangdang.ddframe.job.event.JobEventConfiguration;
 import com.dangdang.ddframe.job.event.rdb.JobEventRdbConfiguration;
+import com.dangdang.ddframe.job.executor.handler.JobProperties;
 import com.dangdang.ddframe.job.lite.config.LiteJobConfiguration;
 import com.dangdang.ddframe.job.lite.spring.api.SpringJobScheduler;
 import com.dangdang.ddframe.job.reg.base.CoordinatorRegistryCenter;
@@ -54,10 +55,17 @@ public class ElasticJobConfig {
                                                         final String shardingItemParameters){
         //JobCoreConfigurationBuilder
         JobCoreConfiguration.Builder JobCoreConfigurationBuilder = JobCoreConfiguration.newBuilder(jobClass.getName(), cron, shardingTotalCount);
+
+
         //设置shardingItemParameters
         if(!StringUtils.isEmpty(shardingItemParameters)){
             JobCoreConfigurationBuilder.shardingItemParameters(shardingItemParameters);
         }
+
+        //设置失效转移为true
+        JobCoreConfigurationBuilder.failover(true);
+
+
         JobCoreConfiguration jobCoreConfiguration = JobCoreConfigurationBuilder.build();
         //创建SimpleJobConfiguration
         SimpleJobConfiguration simpleJobConfiguration = new SimpleJobConfiguration(jobCoreConfiguration, jobClass.getCanonicalName());
@@ -75,10 +83,12 @@ public class ElasticJobConfig {
                                                         final String shardingItemParameters){
         //JobCoreConfigurationBuilder
         JobCoreConfiguration.Builder JobCoreConfigurationBuilder = JobCoreConfiguration.newBuilder(jobClass.getName(), cron, shardingTotalCount);
+
         //设置shardingItemParameters
         if(!StringUtils.isEmpty(shardingItemParameters)){
             JobCoreConfigurationBuilder.shardingItemParameters(shardingItemParameters);
         }
+
         JobCoreConfiguration jobCoreConfiguration = JobCoreConfigurationBuilder.build();
         // 定义数据流类型任务配置
         DataflowJobConfiguration jobConfig = new DataflowJobConfiguration(jobCoreConfiguration, jobClass.getCanonicalName(),true);
@@ -90,12 +100,19 @@ public class ElasticJobConfig {
     }
     @Bean(initMethod = "init")
     public SpringJobScheduler initSimpleElasticJob() {
+
         // 增加任务事件追踪配置
         JobEventConfiguration jobEventConfig = new JobEventRdbConfiguration(dataSource);
-        //创建SpringJobScheduler
 
-        SpringJobScheduler springJobScheduler = new SpringJobScheduler(fileBackupJob, registryCenter,
-                createJobConfiguration(fileBackupJob.getClass(), "0/10 * * * * ?", 4, "0=text,1=image,2=radio,3=vedio")
+        //创建SpringJobScheduler
+        SpringJobScheduler springJobScheduler = new SpringJobScheduler(
+                fileBackupJob,
+                registryCenter,
+                createJobConfiguration(
+                        fileBackupJob.getClass(),
+                        "0/10 * * * * ?",
+                        4,
+                        "0=text,1=image,2=radio,3=vedio")//分到哪一片就能拿到后面对应的参数，text、image等（在execute方法里面能够得到）
                 ,jobEventConfig);
         return springJobScheduler;
     }
